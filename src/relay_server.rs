@@ -240,7 +240,7 @@ async fn check_cmd(cmd: &str, limiter: Limiter) -> String {
                 }
             } else {
                 unsafe {
-                    res = format!("{}\n", DOWNGRADE_THRESHOLD);
+                    res = format!("{DOWNGRADE_THRESHOLD}\n");
                 }
             }
         }
@@ -379,7 +379,7 @@ async fn handle_connection(
         let limiter = limiter.clone();
         tokio::spawn(async move {
             let mut stream = stream;
-            let mut buffer = [0; 64];
+            let mut buffer = [0; 1024];
             if let Ok(Ok(n)) = timeout(1000, stream.read(&mut buffer[..])).await {
                 if let Ok(data) = std::str::from_utf8(&buffer[..n]) {
                     let res = check_cmd(data, limiter).await;

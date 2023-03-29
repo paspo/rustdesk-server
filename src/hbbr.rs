@@ -13,10 +13,9 @@ fn main() -> ResultType<()> {
         .write_mode(WriteMode::Async)
         .start()?;
     let args = format!(
-        "-p, --port=[NUMBER(default={})] 'Sets the listening port'
+        "-p, --port=[NUMBER(default={RELAY_PORT})] 'Sets the listening port'
         -k, --key=[KEY] 'Only allow the client with the same key'
         ",
-        RELAY_PORT,
     );
     let matches = App::new("hbbr")
         .version(version::VERSION)
@@ -29,9 +28,18 @@ fn main() -> ResultType<()> {
             section.iter().for_each(|(k, v)| std::env::set_var(k, v));
         }
     }
+    let mut port = RELAY_PORT;
+    if let Ok(v) = std::env::var("PORT") {
+        let v: i32 = v.parse().unwrap_or_default();
+        if v > 0 {
+            port = v + 1;
+        }
+    }
     start(
-        matches.value_of("port").unwrap_or(&RELAY_PORT.to_string()),
-        matches.value_of("key").unwrap_or(""),
+        matches.value_of("port").unwrap_or(&port.to_string()),
+        matches
+            .value_of("key")
+            .unwrap_or(&std::env::var("KEY").unwrap_or_default()),
     )?;
     Ok(())
 }
